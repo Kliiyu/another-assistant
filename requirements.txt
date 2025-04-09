@@ -4,3 +4,5 @@ ollama
 faiss-cpu
 sentence-transformers
 requests
+SpeechRecognition
+python-multipart
