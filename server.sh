@@ -19,6 +19,8 @@ if ! command -v ollama &> /dev/null; then
     echo "Ollama is not installed. Installing Ollama..."
     curl -fsSL https://ollama.com/install.sh | sh
 fi
+echo "Running Ollama..."
+ollama serve
 
 echo "Starting the server..."
 uvicorn main:app --reload

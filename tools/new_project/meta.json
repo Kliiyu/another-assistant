@@ -1,0 +1,6 @@
+{
+    "name": "new_project",
+    "description": "Create as new project workspace",
+    "args": ["name"]
+}
+  

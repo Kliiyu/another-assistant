@@ -20,6 +20,8 @@ if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
     Invoke-WebRequest -Uri $installScriptUrl -OutFile $installScriptPath
     bash $installScriptPath
 }
+Write-Host "Running Ollama..."
+ollama serve
 
 Write-Host "Starting the server..."
 uvicorn main:app --reload

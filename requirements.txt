@@ -6,3 +6,4 @@ sentence-transformers
 requests
 SpeechRecognition
 python-multipart
+python-dotenv
