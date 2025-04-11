@@ -13,15 +13,27 @@ python -m venv .\.venv
 .\.venv\Scripts\Activate.ps1
 pip install -r .\requirements.txt
 
-if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
-    Write-Host "Ollama is not installed. Installing Ollama..."
-    $installScriptUrl = "https://ollama.com/install.sh"
-    $installScriptPath = "$env:TEMP\install-ollama.sh"
-    Invoke-WebRequest -Uri $installScriptUrl -OutFile $installScriptPath
-    bash $installScriptPath
+if (Test-Path .\.env) {
+    $envVars = Get-Content .\.env | ForEach-Object {
+        if ($_ -match "^(.*?)=(.*)$") {
+            [PSCustomObject]@{ Key = $matches[1]; Value = $matches[2] }
+        }
+    }
+
+    $ollamaHost = $envVars | Where-Object { $_.Key -eq "OLLAMA_HOST" } | Select-Object -ExpandProperty Value
+    $ollamaModel = $envVars | Where-Object { $_.Key -eq "OLLAMA_LLM_MODEL" } | Select-Object -ExpandProperty Value
+
+    if ($ollamaHost -and $ollamaModel) {
+        Write-Host "Pulling model $ollamaModel on $ollamaHost..."
+        Invoke-RestMethod -Uri "$ollamaHost/api/pull" -Method Post -Body (@{ model = $ollamaModel } | ConvertTo-Json -Depth 10) -ContentType "application/json"
+    } else {
+        Write-Host "OLLAMA_HOST or OLLAMA_LLM_MODEL is not defined in the .env file."
+        exit 1
+    }
+} else {
+    Write-Host ".env file not found. Please create one with OLLAMA_HOST and OLLAMA_LLM_MODEL defined."
+    exit 1
 }
-Write-Host "Running Ollama..."
-ollama serve
 
 Write-Host "Starting the server..."
 uvicorn main:app --reload
